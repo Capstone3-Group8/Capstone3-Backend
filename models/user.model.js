@@ -10,10 +10,10 @@
 //
 // That's why BOTH passwordHash and auth0Id are nullable: every row fills in one
 // or the other. Neither is required on its own.
-const { DataTypes } = require('sequelize');
-const db = require('../db');
+const { DataTypes } = require("sequelize");
+const db = require("../db");
 
-const User = db.define('user', {
+const User = db.define("user", {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,

@@ -1,7 +1,7 @@
 // db/index.js — the one connection to Postgres, shared everywhere.
 // Sequelize is an ORM: we write JavaScript and it writes the SQL for us.
 
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
 // Local dev connects to a database on your own machine.
 // In production, your host gives you a DATABASE_URL — we read it from the
@@ -11,14 +11,14 @@ const { Sequelize } = require('sequelize');
 // once with:  createdb capstone_dev
 // If you rename it here, run createdb with the new name too — otherwise the
 // server starts up and immediately fails with 'database does not exist'.
-const LOCAL_DATABASE_NAME = 'capstone_dev';
+const LOCAL_DATABASE_NAME = "capstone_dev";
 
 const DB_CONNECTION_URL =
   process.env.DATABASE_URL ||
   `postgres://localhost:5432/${LOCAL_DATABASE_NAME}`;
 
 const db = new Sequelize(DB_CONNECTION_URL, {
-  dialect: 'postgres',
+  dialect: "postgres",
   logging: false, // set to console.log if you want to SEE the SQL Sequelize runs
 
   // Hosted Postgres needs SSL; local doesn't. So we only turn it on in
