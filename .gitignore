@@ -4,6 +4,7 @@ node_modules/
 
 # Secrets and local config — never commit these.
 .env
+.env.example
 
 # Logs and OS/editor noise
 *.log
