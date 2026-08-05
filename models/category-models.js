@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const db = require("../db/index");
 
-const Account = db.define("Account", {
+const Category = db.define("Category", {
   id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -10,7 +10,7 @@ const Account = db.define("Account", {
   },
   user_id: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -19,11 +19,10 @@ const Account = db.define("Account", {
       notEmpty: true,
     },
   },
-  balance: {
-    type: DataTypes.INTEGER,
+  type: {
+    type: DataTypes.ENUM("income", "expense"),
     allowNull: false,
-    defaultValue: 0,
   },
 });
 
-module.exports = Account;
+module.exports = Category;
