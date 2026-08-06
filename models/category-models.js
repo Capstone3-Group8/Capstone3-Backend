@@ -23,6 +23,11 @@ const Category = db.define("Category", {
     type: DataTypes.ENUM("income", "expense"),
     allowNull: false,
   },
+  budget: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true,
+    defaultValue: 0,
+  },
 });
 
 module.exports = Category;
