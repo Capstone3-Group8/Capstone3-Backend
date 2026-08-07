@@ -3,9 +3,11 @@
 
 const userRouter = require('./user.routes');
 const authRouter = require('./auth.routes');
+const plaidRouter = require('./plaid.routes')
 
 // Add a new resource? Import its router above and add one line here.
 module.exports = {
   userRouter,
   authRouter,
+  plaidRouter
 };
