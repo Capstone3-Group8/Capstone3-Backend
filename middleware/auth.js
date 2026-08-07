@@ -41,11 +41,11 @@ if (!JWT_SECRET) {
   throw new Error('Missing JWT_SECRET — set it in .env (see .env.example).');
 }
 
-if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_AUDIENCE) {
-  throw new Error(
-    'Missing Auth0 env vars — set AUTH0_DOMAIN and AUTH0_AUDIENCE in .env.',
-  );
-}
+// if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_AUDIENCE) {
+//   throw new Error(
+//     'Missing Auth0 env vars — set AUTH0_DOMAIN and AUTH0_AUDIENCE in .env.',
+//   );
+// }
 
 // AUTH0_DOMAIN should be a bare host (dev-xxx.us.auth0.com). Tolerate a pasted
 // https:// prefix instead of building a broken "https://https://..." issuer URL.
