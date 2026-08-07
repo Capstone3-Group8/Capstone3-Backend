@@ -41,7 +41,7 @@ if (!JWT_SECRET) {
   throw new Error('Missing JWT_SECRET — set it in .env (see .env.example).');
 }
 
-s// if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_AUDIENCE) {
+// if (!process.env.AUTH0_DOMAIN || !process.env.AUTH0_AUDIENCE) {
 //   throw new Error(
 //     'Missing Auth0 env vars — set AUTH0_DOMAIN and AUTH0_AUDIENCE in .env.',
 //   );
