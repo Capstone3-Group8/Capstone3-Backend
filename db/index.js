@@ -25,8 +25,6 @@ const db = new Sequelize(DB_CONNECTION_URL, {
   // production (when DATABASE_URL is set). rejectUnauthorized:false accepts
   // the self-signed certificates that Render/Neon/Railway use.
   dialectOptions: process.env.DATABASE_URL
-    ? { ssl: { require: true, rejectUnauthorized: false } }
-    : {},
 });
 
 module.exports = db;
