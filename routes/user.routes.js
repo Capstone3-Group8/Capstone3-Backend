@@ -1,111 +1,84 @@
-/**
- * task.routes.js — an EXAMPLE router. It owns all the endpoints for "tasks".
- * app.js mounts it at /api/tasks, so `.get('/')` here answers GET /api/tasks.
- * Copy this shape for your own resources, then delete this example.
-
- * CRUD = the five things you do with data:
- *   Create  ->  POST    /api/tasks
- *   Read    ->  GET     /api/tasks       (all)
- *               GET     /api/tasks/:id   (one)
- *   Update  ->  PUT     /api/tasks/:id
- *   Update  ->  PATCH   /api/tasks/:id
- *   Delete  ->  DELETE  /api/tasks/:id
- *
- * This is a REFERENCE. Copy this shape for your own resources,
- * then delete the Task example.
- */
-
-const express = require('express');
-const { Task } = require('../models');
-
+const express = require("express");
 const router = express.Router();
+const { User } = require("../models");
 
-// Every handler is async because DB calls take time (we await them).
-// If a call fails, catch hands the error to next(err) -> the error handler in
-// app.js. That stops one bad request from crashing the whole server.
-
-// READ ALL — GET /api/tasks
-router.get('/', async (req, res, next) => {
+//route for getting all the users
+router.get("/", async (req, res, next) => {
   try {
-    const tasks = await Task.findAll({ order: [['createdAt', 'DESC']] }); // newest first
-    res.json(tasks);
-  } catch (err) {
-    next(err);
+    const users = await User.findAll();
+    return res.status(200).json(users);
+  } catch (error) {
+    next(error);
   }
 });
 
-// READ ONE — GET /api/tasks/:id
-router.get('/:id', async (req, res, next) => {
+//route for getting a user by its Id
+router.get("/:id", async (req, res, next) => {
   try {
-    const task = await Task.findByPk(req.params.id); // :id comes in on req.params
-    if (!task) {
-      return res.status(404).json({ error: 'Task not found' }); // always handle "not found"
+    const id = req.params.id;
+    const foundUser = await User.findByPk(id);
+
+    if (!foundUser) {
+      return res.status(404).json({ msg: "User not found." });
     }
-    res.json(task);
-  } catch (err) {
-    next(err);
+    return res.status(200).json(foundUser);
+  } catch (error) {
+    next(error);
   }
 });
 
-// CREATE — POST /api/tasks
-router.post('/', async (req, res, next) => {
+//route for posting a user
+router.post("/", async (req, res, next) => {
   try {
-    const { title, description, completed } = req.body; // the new task's data
-    const task = await Task.create({ title, description, completed });
-    res.status(201).json(task); // 201 = Created
-  } catch (err) {
-    next(err);
-  }
-});
+    const { username, email } = req.body;
 
-// UPDATE (full) — PUT /api/tasks/:id — client sends EVERY field
-router.put('/:id', async (req, res, next) => {
-  try {
-    const task = await Task.findByPk(req.params.id);
-    if (!task) {
-      return res.status(404).json({ error: 'Task not found' });
+    if (!username) {
+      return res.status(400).json({ msg: "username is needed!" });
     }
-    const { title, description, completed } = req.body;
-    await task.update({ title, description, completed });
-    res.json(task);
-  } catch (err) {
-    next(err);
+    const newUser = await User.create({
+      username,
+      email,
+    });
+    return res.status(201).json(newUser);
+  } catch (error) {
+    next(error);
   }
 });
 
-// UPDATE (partial) — PATCH /api/tasks/:id — change only the fields sent
-router.patch('/:id', async (req, res, next) => {
+//route for updating the user
+router.patch("/:id", async (req, res, next) => {
   try {
-    const task = await Task.findByPk(req.params.id);
-    if (!task) {
-      return res.status(404).json({ error: 'Task not found' });
+    const id = req.params.id;
+    const foundUser = await User.findByPk(id);
+
+    if (!foundUser) {
+      return res.status(404).json({ msg: "User not found." });
     }
-    // Only copy over fields we allow, so nobody can change columns we didn't intend (like id).
-    const allowed = ['title', 'description', 'completed'];
+
     const updates = {};
-    for (const field of allowed) {
-      if (field in req.body) {
-        updates[field] = req.body[field];
-      }
+    for (const key of ["username", "email"]) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
     }
-    await task.update(updates);
-    res.json(task);
-  } catch (err) {
-    next(err);
+    const updatedUser = await foundUser.update(updates);
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
   }
 });
 
-// DELETE — DELETE /api/tasks/:id
-router.delete('/:id', async (req, res, next) => {
+//route for deleting the user by its Id.
+router.delete("/:id", async (req, res, next) => {
   try {
-    const task = await Task.findByPk(req.params.id);
-    if (!task) {
-      return res.status(404).json({ error: 'Task not found' });
+    const id = req.params.id;
+    const foundUser = await User.findByPk(id);
+
+    if (!foundUser) {
+      return res.status(404).json({ msg: "User not found." });
     }
-    await task.destroy();
-    res.sendStatus(204); // 204 = No Content (nothing to send back)
-  } catch (err) {
-    next(err);
+    await foundUser.destroy();
+    return res.status(200).json({ msg: "User deleted successfully." });
+  } catch (error) {
+    next(error);
   }
 });
 
