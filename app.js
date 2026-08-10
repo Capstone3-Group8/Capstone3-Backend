@@ -13,7 +13,14 @@ const cookieParser = require("cookie-parser");
 const { rateLimit } = require("express-rate-limit");
 
 const { db } = require("./models"); // the database connection
-const { userRouter, authRouter, plaidRouter } = require("./routes"); // our routers
+const {
+  userRouter,
+  authRouter,
+  plaidRouter,
+  transactionRouter,
+  categoryRouter,
+  accountRouter,
+} = require("./routes"); // our routers
 
 const { requireAuth } = require("./middleware/auth"); // accepts our JWT or Auth0's
 
@@ -99,6 +106,10 @@ app.use("/auth", authRouter);
 //plaid routes: creates a link token so the frontend can launch Plaid Link
 //letting the user connct their bank account. Protected by reqAuth
 app.use("/api/plaid", plaidRouter);
+
+app.use("/transactions", transactionRouter);
+app.use("/category", categoryRouter);
+app.use("/account", accountRouter);
 
 // ---------- 404 ----------
 // Nothing above matched, so the thing doesn't exist. Send a clear JSON 404.
