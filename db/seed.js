@@ -39,7 +39,7 @@ const seed = async () => {
         {
           name: "Salary",
           type: "income",
-          budget: 0,
+          budget: 2000,
         },
         {
           name: "Groceries",
