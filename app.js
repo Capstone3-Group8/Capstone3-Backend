@@ -97,7 +97,7 @@ app.get("/api/protected", requireAuth, (req, res) => {
 //   app.use('/api/posts', postRouter)
 // To make user private per user, add requireAuth middleware here:
 //   app.use('/api/tasks', requireAuth, userRouter)
-app.use("/api/user", userRouter);
+app.use("/user", userRouter);
 
 // Auth routes: signup/login/logout with our own JWT, plus the Auth0 sync.
 // This router applies the right guard to each route, so we just mount it here.
@@ -107,9 +107,9 @@ app.use("/auth", authRouter);
 //letting the user connct their bank account. Protected by reqAuth
 app.use("/api/plaid", plaidRouter);
 
-app.use("/transactions", transactionRouter);
-app.use("/category", categoryRouter);
-app.use("/account", accountRouter);
+app.use("/transaction", transactionRouter);
+app.use("/categories", categoryRouter);
+app.use("/accounts", accountRouter);
 
 // ---------- 404 ----------
 // Nothing above matched, so the thing doesn't exist. Send a clear JSON 404.
