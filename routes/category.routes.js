@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const { Category } = require("../models");
-
+const { requireAuth } = require("../middleware/auth");
 //route for getting all the categories
-router.get("/", async (req, res, next) => {
+router.get("/", requireAuth, async (req, res, next) => {
   try {
-    const categories = await Category.findAll();
+    const categories = await Category.findAll({
+      where: { user_id: req.user.id },
+      order: [["id", "ASC"]]
+    });
     return res.status(200).json(categories);
   } catch (error) {
     next(error);
@@ -28,9 +31,9 @@ router.get("/:id", async (req, res, next) => {
 });
 
 //route for posting a category
-router.post("/", async (req, res, next) => {
+router.post("/", requireAuth, async (req, res, next) => {
   try {
-    const { user_id, name, type, budget } = req.body;
+    const { name, type, budget } = req.body;
 
     if (!name || !type) {
       return res
@@ -38,7 +41,7 @@ router.post("/", async (req, res, next) => {
         .json({ msg: "name and type are needed!" });
     }
     const newCategory = await Category.create({
-      user_id,
+      user_id: req.user.id,
       name,
       type,
       budget,
