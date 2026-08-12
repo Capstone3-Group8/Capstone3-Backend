@@ -19,11 +19,19 @@ const Account = db.define("Account", {
       notEmpty: true,
     },
   },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   balance: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
     defaultValue: 0,
   },
+  bank_name: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
 });
 
 module.exports = Account;

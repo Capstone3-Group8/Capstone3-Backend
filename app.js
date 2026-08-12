@@ -107,7 +107,7 @@ app.use("/auth", authRouter);
 //letting the user connct their bank account. Protected by reqAuth
 app.use("/api/plaid", plaidRouter);
 
-app.use("/transaction", transactionRouter);
+app.use("/transactions", transactionRouter);
 app.use("/categories", categoryRouter);
 app.use("/accounts", accountRouter);
 
