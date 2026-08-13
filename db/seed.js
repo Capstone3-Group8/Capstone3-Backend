@@ -62,12 +62,16 @@ const seed = async () => {
         {
           user_id: users[0].id,
           name: "Checking Account",
+          type: "checking",
           balance: 50000,
+          bank_name: "Chase",
         },
         {
           user_id: users[1].id,
           name: "Savings Account",
+          type: "savings",
           balance: 25000,
+          bank_name: "Bank of America",
         },
       ],
       { returning: true },
