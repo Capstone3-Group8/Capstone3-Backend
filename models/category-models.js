@@ -20,7 +20,7 @@ const Category = db.define("Category", {
     },
   },
   type: {
-    type: DataTypes.ENUM("income", "expense"),
+    type: DataTypes.ENUM("Income", "Expense"),
     allowNull: false,
   },
   budget: {
