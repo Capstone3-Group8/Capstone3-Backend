@@ -38,17 +38,17 @@ const seed = async () => {
       [
         {
           name: "Salary",
-          type: "income",
+          type: "Income",
           budget: 2000,
         },
         {
           name: "Groceries",
-          type: "expense",
+          type: "Expense",
           budget: 500,
         },
         {
           name: "Rent",
-          type: "expense",
+          type: "Expense",
           budget: 2200,
         },
       ],
@@ -84,7 +84,7 @@ const seed = async () => {
         account_id: accounts[0].id,
         category_id: categories[1].id,
         amount: 700,
-        type: "withdrawal",
+        type: "Withdrawal",
         date: new Date(),
         description: "Errands",
       },
@@ -93,7 +93,7 @@ const seed = async () => {
         account_id: accounts[0].id,
         category_id: categories[0].id,
         amount: 4000,
-        type: "deposit",
+        type: "Deposit",
         date: new Date(),
         description: "Paycheck",
       },
