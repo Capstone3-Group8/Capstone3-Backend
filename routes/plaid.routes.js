@@ -7,7 +7,9 @@ router.post('/create-link-token', requireAuth, async(req,res,next) => {
     try {
         //linkTokenCreate() is a call over the network to Plaid's server so returns a promise
         const response = await plaidClient.linkTokenCreate({ 
-            client_user_id: req.user.id, 
+            user: {
+                client_user_id: req.user.id,
+            }, 
             client_name: 'Capstone3', 
             products: process.env.PLAID_PRODUCTS.split(','),
             country_codes: process.env.PLAID_COUNTRY_CODES.split(','),
@@ -15,6 +17,7 @@ router.post('/create-link-token', requireAuth, async(req,res,next) => {
         });
         res.json({link_token: response.data.link_token})
     } catch (error) {
+        console.error('Plaid error:' ,error.response?.data || error.message )
         next(error)
     }
 
