@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { plaidClient } = require("../plaid");
-const { requireAuth } = require('../middleware/auth')
+const { requireAuth } = require('../middleware/auth');
+const { PlaidItem } = require("../models");
 
 router.post('/create-link-token', requireAuth, async(req,res,next) => {
     try {
@@ -17,10 +18,30 @@ router.post('/create-link-token', requireAuth, async(req,res,next) => {
         });
         res.json({link_token: response.data.link_token})
     } catch (error) {
-        console.error('Plaid error:' ,error.response?.data || error.message )
+        console.error('Plaid error:', error.response?.data || error.message )
         next(error)
     }
 
+});
+
+router.post('/exchange-public-token', requireAuth, async(req, res, next) => {
+    try {
+        const { public_token } = req.body;
+
+        const response = await plaidClient.itemPublicTokenExchange({ public_token });
+        const { access_token, item_id } = response.data;
+
+        await PlaidItem.create({
+            user_id: req.user.id,
+            item_id: item_id,
+            access_token: access_token,
+        });
+        res.json({ success: true });
+
+
+    } catch (error) {
+        next(error);
+    }
 });
 
 module.exports = router;
