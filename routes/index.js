@@ -7,6 +7,7 @@ const plaidRouter = require("./plaid.routes");
 const transactionRouter = require("./transaction.routes");
 const categoryRouter = require("./category.routes");
 const accountRouter = require("./acc-routes");
+const financialInsightsRouter = require("./financial-insights.routes");
 
 // Add a new resource? Import its router above and add one line here.
 module.exports = {
@@ -16,4 +17,5 @@ module.exports = {
   transactionRouter,
   categoryRouter,
   accountRouter,
+  financialInsightsRouter,
 };
