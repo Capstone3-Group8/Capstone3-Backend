@@ -77,6 +77,52 @@ ${JSON.stringify(financialData)}
   return JSON.parse(response.text);
 }
 
+async function answerFinancialQuestion(question, financialData) {
+  const ai = getGeminiClient();
+
+  const response = await ai.models.generateContent({
+    model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+
+    contents: `
+You are a friendly educational personal-finance assistant.
+
+Answer the user's question using ONLY the financial data provided below.
+
+Rules:
+- Do not invent transactions, categories, amounts, or facts.
+- If the supplied data cannot answer the question, explain what data is missing.
+- Do not provide investment, tax, legal, or credit advice.
+- Keep the answer short, practical, and easy to understand.
+- Mention relevant amounts when they are available.
+
+User's question:
+${question}
+
+Financial data:
+${JSON.stringify(financialData)}
+    `,
+
+    config: {
+      responseMimeType: "application/json",
+
+      responseSchema: {
+        type: Type.OBJECT,
+
+        properties: {
+          answer: {
+            type: Type.STRING,
+          },
+        },
+
+        required: ["answer"],
+      },
+    },
+  });
+
+  return JSON.parse(response.text);
+}
+
 module.exports = {
   generateFinancialInsights,
+  answerFinancialQuestion,
 };
