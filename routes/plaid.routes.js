@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { plaidClient } = require("../plaid");
 const { requireAuth } = require('../middleware/auth');
-const { PlaidItem, PlaidAccount } = require("../models");
+const { PlaidItem, PlaidAccount, PlaidTransaction } = require("../models");
 
 router.post('/create-link-token', requireAuth, async(req,res,next) => {
     try {
@@ -63,5 +63,48 @@ router.post('/exchange-public-token', requireAuth, async(req, res, next) => {
         next(error);
     }
 });
+
+router.post('/sync-transactions', requireAuth, async(req, res, next) => {
+    try {
+        const plaidItem = await PlaidItem.findOne({ where: { user_id: req.user.id }})
+        if (!plaidItem){
+            return res.status(404).json({ error: 'No linked bank account found' })
+        }
+        
+        const endDate = new Date().toISOString().split('T')[0]; // today, as YYYY-MM-DD
+        const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]; // 30 days ago
+
+        const transactionResponse = await plaidClient.transactionsGet({ 
+            access_token: plaidItem.access_token,
+            start_date: startDate,
+            end_date: endDate
+        })
+
+        const transactions = transactionResponse.data.transactions;
+
+        await Promise.all(
+            transactions.map((transaction) =>
+            PlaidTransaction.create({
+                user_id: req.user.id,
+                account_id: transaction.account_id,
+                transaction_id: transaction.transaction_id,
+                amount: transaction.amount,
+                date: transaction.date,
+                name: transaction.name,
+                merchant_name: transaction.merchant_name,
+                // categories are arrays ofr something like["Food and Drink, Restaurants"] so
+                // just turn these arrays into strings to avoid errors when creating them into postgres
+                category: transaction.category ? transaction.category.join(', ') : null,
+                pending: transaction.pending
+            }))
+        )
+
+        res.json({ success: true, count: transactions.length });
+
+
+    } catch (error) {
+        next(error)
+    }
+})
 
 module.exports = router;
