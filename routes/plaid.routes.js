@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { plaidClient } = require("../plaid");
 const { requireAuth } = require('../middleware/auth');
-const { PlaidItem } = require("../models");
+const { PlaidItem, PlaidAccount } = require("../models");
 
 router.post('/create-link-token', requireAuth, async(req,res,next) => {
     try {
@@ -36,9 +36,29 @@ router.post('/exchange-public-token', requireAuth, async(req, res, next) => {
             item_id: item_id,
             access_token: access_token,
         });
+
+        const accountsResponse = await plaidClient.accountsGet({ access_token });
+        const accounts = accountsResponse.data.accounts;
+
+        //could not figure out how accounts data looks like, in account.balances I had blalance so it was returning undefined
+        //console.log(JSON.stringify(accounts, null, 2));
+        
+        await Promise.all( accounts.map((account) => 
+            PlaidAccount.create({
+                user_id: req.user.id,
+                item_id: item_id,
+                account_id: account.account_id,
+                name: account.name,
+                mask: account.mask,
+                type: account.type,
+                subtype: account.subtype,
+                current_balance: account.balances.current,
+                available_balance: account.balances.available
+                })
+            )
+        )
+
         res.json({ success: true });
-
-
     } catch (error) {
         next(error);
     }
