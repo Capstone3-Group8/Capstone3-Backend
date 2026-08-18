@@ -111,6 +111,7 @@ app.use("/api/plaid", plaidRouter);
 app.use("/transactions", transactionRouter);
 app.use("/categories", categoryRouter);
 app.use("/accounts", accountRouter);
+app.use("/budgets", budgetRouter);
 
 app.use(
   "/api/financial-insights",

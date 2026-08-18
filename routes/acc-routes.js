@@ -4,7 +4,7 @@ const { Account } = require("../models");
 const { requireAuth } = require("../middleware/auth");
 
 // GET /accounts — all accounts for the logged-in user
-router.get("/", requireAuth, async (req, res, next) => {
+router.get("/", requireAuth, async (req, res) => {
   try {
     const accounts = await Account.findAll({
       where: { user_id: req.user.id },
@@ -13,7 +13,7 @@ router.get("/", requireAuth, async (req, res, next) => {
 
     return res.status(200).json(accounts);
   } catch (error) {
-    next(error);
+    console.log(error);
   }
 });
 
