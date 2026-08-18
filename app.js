@@ -20,6 +20,7 @@ const {
   transactionRouter,
   categoryRouter,
   accountRouter,
+  budgetRouter,
   financialInsightsRouter,
 } = require("./routes"); // our routers
 
