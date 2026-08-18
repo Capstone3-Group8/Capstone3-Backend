@@ -1,13 +1,8 @@
 const express = require("express");
 const router = express.Router();
-<<<<<<< HEAD
-const { plaidClient,  } = require("../plaid");
-const { requireAuth } = require('../middleware/auth')
-=======
 const { plaidClient } = require("../plaid");
 const { requireAuth } = require('../middleware/auth');
 const { PlaidItem, PlaidAccount, PlaidTransaction } = require("../models");
->>>>>>> 7b65ddb832ea17bec0186bc5609c7f8f5dbbcc35
 
 router.post('/create-link-token', requireAuth, async(req,res,next) => {
     try {
@@ -69,46 +64,6 @@ router.post('/exchange-public-token', requireAuth, async(req, res, next) => {
     }
 });
 
-<<<<<<< HEAD
-router.get("/transactions", requireAuth, async(req, res, next) => {
-    try{
-        const item = await PlaidItem.findOne({
-            where: { user_id: req.user.id },
-        });
-
-        if(!item){
-            return res.status(404).json( {error: "No Plaid Item Found!!!"});
-        }
-
-        const start_date = "12/18/1983";
-        const end_date = new Date().toISOString().split("T")[0];
-
-        const response = await plaidClient.transactionsGet({
-            access_token: item_.access_token,
-            start_date,
-            end_date,
-        });
-
-        const transactions =response.data.transactions;
-
-        for(const tx of transactions){
-            await PlaidTransaction.upsert({
-                user_id: req.user.id,
-                account_id: tx.account_id,
-                transaction_id: tx.transaction_id,
-                amount: tx.amount,
-                date: tx.date,
-                name: tx.name,
-                merchant_name: tx.merchant_name,
-                category: tx.category?.join(", ") || null,
-                pending: tx.pending,
-            });
-        }
-
-        res.json(transactions);
-    }catch(err){
-        next(err);    
-=======
 router.post('/sync-transactions', requireAuth, async(req, res, next) => {
     try {
         const plaidItem = await PlaidItem.findOne({ where: { user_id: req.user.id }})
@@ -149,7 +104,6 @@ router.post('/sync-transactions', requireAuth, async(req, res, next) => {
 
     } catch (error) {
         next(error)
->>>>>>> 7b65ddb832ea17bec0186bc5609c7f8f5dbbcc35
     }
 })
 
