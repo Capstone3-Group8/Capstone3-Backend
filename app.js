@@ -20,7 +20,7 @@ const {
   transactionRouter,
   categoryRouter,
   accountRouter,
-  budgetRouter,
+  financialInsightsRouter,
 } = require("./routes"); // our routers
 
 const { requireAuth } = require("./middleware/auth"); // accepts our JWT or Auth0's
@@ -112,6 +112,11 @@ app.use("/transactions", transactionRouter);
 app.use("/categories", categoryRouter);
 app.use("/accounts", accountRouter);
 app.use("/budgets", budgetRouter);
+
+app.use(
+  "/api/financial-insights",
+  financialInsightsRouter,
+);
 
 // ---------- 404 ----------
 // Nothing above matched, so the thing doesn't exist. Send a clear JSON 404.

@@ -14,6 +14,7 @@ const PlaidItem = db.define("PlaidItem", {
   item_id: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   access_token: {
     type: DataTypes.STRING,
