@@ -8,7 +8,7 @@ const User = require("./user.model");
 const Transaction = require("./transaction-models");
 const PlaidItem = require("./PlaidItem");
 const PlaidAccount = require("./PlaidAccount");
-const PlaidTransaction = require("./PlaidTransaction")
+const PlaidTransaction = require("./PlaidTransaction");
 
 // ---------- associations ----------
 // Describe how tables relate here. When you're ready to tie tasks to their
@@ -24,9 +24,8 @@ Category.belongsTo(User, { foreignKey: "user_id" });
 User.hasMany(Transaction, { foreignKey: "user_id", onDelete: "CASCADE" });
 Transaction.belongsTo(User, { foreignKey: "user_id" });
 
-User.hasMany(PlaidItem, { foreignKey: "user_id", onDelete: "CASCADE"});
-PlaidItem.belongsTo(User, { foreignKey: "user_id"})
-
+User.hasMany(PlaidItem, { foreignKey: "user_id", onDelete: "CASCADE" });
+PlaidItem.belongsTo(User, { foreignKey: "user_id" });
 
 // Category and Transaction Relationship
 Category.hasMany(Transaction, { foreignKey: "category_id" });
@@ -37,11 +36,23 @@ Account.hasMany(Transaction, { foreignKey: "account_id" });
 Transaction.belongsTo(Account, { foreignKey: "account_id" });
 
 //Plaid Relations
-PlaidItem.hasMany(PlaidAccount, { foreignKey: "item_id"})
-PlaidAccount.belongsTo(PlaidItem, { foreignKey: "item_id"})
+PlaidItem.hasMany(PlaidAccount, {
+  foreignKey: "item_id",
+  sourceKey: "item_id",
+});
+PlaidAccount.belongsTo(PlaidItem, {
+  foreignKey: "item_id",
+  targetKey: "item_id",
+});
 
-PlaidAccount.hasMany(PlaidTransaction, { foreignKey: "account_id"})
-PlaidTransaction.belongsTo(PlaidAccount, {foreignKey: "account_id"})
+PlaidAccount.hasMany(PlaidTransaction, {
+  foreignKey: "account_id",
+  sourceKey: "account_id",
+});
+PlaidTransaction.belongsTo(PlaidAccount, {
+  foreignKey: "account_id",
+  targetKey: "account_id",
+});
 
 module.exports = {
   db, // exported too so seed.js can sync from one place
@@ -51,7 +62,7 @@ module.exports = {
   Transaction,
   PlaidItem,
   PlaidAccount,
-  PlaidTransaction
+  PlaidTransaction,
 };
 
 // User has many Accounts, Categories, and Transactions
