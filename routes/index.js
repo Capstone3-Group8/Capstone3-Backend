@@ -7,7 +7,6 @@ const plaidRouter = require("./plaid.routes");
 const transactionRouter = require("./transaction.routes");
 const categoryRouter = require("./category.routes");
 const accountRouter = require("./acc-routes");
-const budgetRouter = require("./budget-routes")
 const budgetRouter = require("./budget-routes");
 const financialInsightsRouter = require("./financial-insights.routes");
 
