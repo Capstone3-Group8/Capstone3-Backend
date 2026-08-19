@@ -25,6 +25,7 @@ const {
 } = require("./routes"); // our routers
 
 const { requireAuth } = require("./middleware/auth"); // accepts our JWT or Auth0's
+const budgetAnalysisRouter = require("./routes/budget-analysis-routes");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -113,6 +114,7 @@ app.use("/transactions", transactionRouter);
 app.use("/categories", categoryRouter);
 app.use("/accounts", accountRouter);
 app.use("/budgets", budgetRouter);
+app.use("/api/budget-analysis", budgetAnalysisRouter);
 
 app.use(
   "/api/financial-insights",
