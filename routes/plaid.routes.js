@@ -105,6 +105,24 @@ router.post('/sync-transactions', requireAuth, async(req, res, next) => {
     } catch (error) {
         next(error)
     }
-})
+});
+
+router.get('/accounts', requireAuth, async(req, res, next) => {
+    try {
+        const accounts = await PlaidAccount.findAll({where: { user_id: req.user.id }})
+        res.json(accounts)
+    } catch (error) {
+        next(error)
+    }
+});
+
+router.get('/transactions', requireAuth, async(req, res, next) => {
+    try {
+        const transactions = await PlaidTransaction.findAll({where: { user_id: req.user.id}})
+        res.json(transactions)
+    } catch (error) {
+        next(error)
+    }
+});
 
 module.exports = router;
