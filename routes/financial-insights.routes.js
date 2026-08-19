@@ -3,7 +3,9 @@ const express = require("express");
 const {
   generateFinancialInsights,
   answerFinancialQuestion,
+  categorizeTransactions,
 } = require("../services/financialInsights");
+const { error } = require("ajv/dist/vocabularies/applicator/dependencies");
 
 const router = express.Router();
 
@@ -40,16 +42,13 @@ router.post("/", async (req, res, next) => {
       currentBalance,
       averageTransaction,
 
-      expensesByCategory: expensesByCategory
-        .slice(0, 20)
-        .map((category) => ({
-          name: String(category.name || "Uncategorized").slice(0, 100),
-          amount: Number(category.amount) || 0,
-        })),
+      expensesByCategory: expensesByCategory.slice(0, 20).map((category) => ({
+        name: String(category.name || "Uncategorized").slice(0, 100),
+        amount: Number(category.amount) || 0,
+      })),
     };
 
-    const insights =
-      await generateFinancialInsights(safeFinancialData);
+    const insights = await generateFinancialInsights(safeFinancialData);
 
     return res.status(200).json(insights);
   } catch (error) {
@@ -61,10 +60,7 @@ router.post("/question", async (req, res, next) => {
   try {
     const { question, financialData } = req.body;
 
-    if (
-      typeof question !== "string" ||
-      question.trim().length === 0
-    ) {
+    if (typeof question !== "string" || question.trim().length === 0) {
       return res.status(400).json({
         error: "A financial question is required",
       });
@@ -97,9 +93,7 @@ router.post("/question", async (req, res, next) => {
       expensesByCategory: financialData.expensesByCategory
         .slice(0, 20)
         .map((category) => ({
-          name: String(
-            category.name || "Uncategorized",
-          ).slice(0, 100),
+          name: String(category.name || "Uncategorized").slice(0, 100),
 
           amount: Number(category.amount) || 0,
         })),
@@ -111,6 +105,46 @@ router.post("/question", async (req, res, next) => {
     );
 
     return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/categorize", async (req, res, next) => {
+  try {
+    const { transactions, categories } = req.body;
+
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "An array of transactions is required!" });
+    }
+
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res
+        .status(400)
+        .json({ error: "An array of categories is required!" });
+    }
+
+    const safeTransactions = transactions.map((tx) => ({
+      description: String(tx.description || "Unknown").slice(0, 150),
+      amount: Number(tx.amount) || 0,
+      type: String(tx.type || "withdrawal").toLowerCase(),
+    }));
+
+    const safeCategories = categories.map((cat) => String(cat).slice(0, 50));
+
+    const categoryNames = await categorizeTransactions(
+      safeTransactions,
+      safeCategories,
+    );
+
+    const result = transactions.map((tx, index) => ({
+      ...tx,
+      categoryName: categoryNames[index] || null,
+    }));
+
+    return res.status(200).json({ success: true, data: result });
   } catch (error) {
     next(error);
   }

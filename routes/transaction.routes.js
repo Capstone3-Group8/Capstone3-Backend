@@ -4,6 +4,7 @@ const Transaction = require("../models/transaction-models");
 const Account = require("../models/acc-models");
 const Category = require("../models/category-models");
 const { requireAuth } = require("../middleware/auth");
+const { categorizeTransactions } = require("../services/financialInsights");
 
 // GET all transactions for logged-in user
 router.get("/", requireAuth, async (req, res, next) => {
@@ -40,24 +41,11 @@ router.get("/:id", requireAuth, async (req, res, next) => {
 // CREATE a transaction
 router.post("/", requireAuth, async (req, res, next) => {
   try {
-    const {
-      account_id,
-      category_id,
-      amount,
-      type,
-      date,
-      description,
-    } = req.body;
+    const { account_id, category_id, amount, type, date, description } =
+      req.body;
 
     // Validate required fields
-    if (
-      !account_id ||
-      !category_id ||
-      !amount ||
-      !type ||
-      !date ||
-      !description
-    ) {
+    if (!account_id || !amount || !type || !date || !description) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -70,13 +58,43 @@ router.post("/", requireAuth, async (req, res, next) => {
       return res.status(404).json({ error: "Account not found or not yours" });
     }
 
-    // Verify category belongs to user
-    const category = await Category.findOne({
-      where: { id: category_id, user_id: req.user.id },
-    });
+    let category = category_id
+      ? await Category.findOne({
+          where: { id: category_id, user_id: req.user.id },
+        })
+      : null;
 
     if (!category) {
-      return res.status(404).json({ error: "Category not found or not yours" });
+      const categories = await Category.findAll({
+        where: {
+          user_id: req.user.id,
+          type: type === "Deposit" ? "Income" : "Expense",
+        },
+      });
+
+      if (categories.length === 0) {
+        return res.status(400).json({
+          error: "Create a matching income or expense category first",
+        });
+      }
+
+      const [suggestedName] = await categorizeTransactions(
+        [{ amount: Number(amount), type, description }],
+        categories.map((candidate) => ({
+          name: candidate.name,
+          type: candidate.type,
+        })),
+      );
+
+      category = categories.find(
+        (candidate) => candidate.name === suggestedName,
+      );
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        error: "AI could not match this transaction to a category",
+      });
     }
 
     // Create transaction
