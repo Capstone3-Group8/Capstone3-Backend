@@ -1,41 +1,31 @@
 // db/seed.js — reset the tables and fill them with sample data.  Run: npm run seed
 // Gives you (and your teammates) the same predictable rows to build against.
 require("dotenv").config();
-
+const bcrypt = require("bcrypt")
+const { faker } = require("@faker-js/faker");
 const { db, User, Account, Transaction, Category } = require("../models");
 
 const seed = async () => {
   try {
-    // force: true DROPS every table and recreates it empty.
-    // Perfect for a seed script — never do this to real user data.
-    await db.sync({ force: true });
-    console.log("🌱 Database reset.");
-    console.log("🌱 Sample tasks created.");
 
-    // Sample users. In real life these rows come from Auth0 logins (auth0Id is
-    // the token's "sub"). Here we fake a couple so the users table isn't empty.
-    const users = await User.bulkCreate(
-      [
-        {
-          auth0Id: "auth0|seed-ada",
-          username: "ada",
-          email: "ada@example.com",
-          name: "Ada Lovelace",
-        },
-        {
-          auth0Id: "auth0|seed-alan",
-          username: "alan",
-          email: "alan@example.com",
-          name: "Alan Turing",
-        },
-      ],
-      { returning: true },
-    );
-    console.log("🌱 Sample users created.");
+    await db.sync({ force: true });
+    console.log("Database reset.");
+
+    const seedPassword = await bcrypt.hash("password123", 12)
+
+
+    const userData = Array.from({ length: 4 }, () => ({
+      // auth0Id: `auth0|seed-${faker.string.uuid()}`,
+      username: faker.internet.username().slice(0,20), //model cap at 20 char
+      email: faker.internet.email(),
+      passwordHash: seedPassword,
+    }))
+    
+    const users = await User.bulkCreate( userData, { returning: true});
+    console.log("Sample users added")
 
     // Sample Category
-    const categories = await Category.bulkCreate(
-      [
+    const categoryTemp = [
         {
           name: "Salary",
           type: "Income",
@@ -51,58 +41,74 @@ const seed = async () => {
           type: "Expense",
           budget: 2200,
         },
-      ],
-      { returning: true },
+        {
+          name: "Utilities",
+          type: "Expense",
+          budget: 250,
+        },
+        {
+          name: "Entertainment",
+          type: "Expense",
+          budget: 200,
+        },
+        {
+          name: "Freelance",
+          type: "Income",
+          budget: 800,
+        }
+
+      ];
+      const categoryData = users.flatMap((user) => //flatMap makes
+      categoryTemp.map((temp) => ({
+        ...temp, user_id: user.id,
+      })),
     );
-    console.log("🌱Seed Categories created.");
+    
+    const categories = await Category.bulkCreate(categoryData, { returning: true})
+    console.log('categories created')
 
     //Sample Account
-    const accounts = await Account.bulkCreate(
-      [
-        {
-          user_id: users[0].id,
-          name: "Checking Account",
-          type: "checking",
-          balance: 50000,
-          bank_name: "Chase",
-        },
-        {
-          user_id: users[1].id,
-          name: "Savings Account",
-          type: "savings",
-          balance: 25000,
-          bank_name: "Bank of America",
-        },
-      ],
-      { returning: true },
-    );
-    console.log("Seed Accounts Created");
+    const accouuntData = users.flatMap((user) => {
+      const numAccounts = faker.number.int({ min: 2, max: 8});
+      return Array.from({ length: numAccounts }, () => ({
+        user_id: user.id,
+        name: faker.finance.accountName(),
+        type: faker.helpers.arrayElement(["checking", "savings"]),
+        balance: faker.finance.amount({min: 100, max: 60000, dec: 2}),
+        bank_name: faker.company.name(),
+      }))
+    })
+    
+    
+    const accounts = await Account.bulkCreate(accouuntData, { returning: true });
+    console.log("Accounts Created");
 
-    await Transaction.bulkCreate([
-      {
-        user_id: users[0].id,
-        account_id: accounts[0].id,
-        category_id: categories[1].id,
-        amount: 700,
-        type: "Withdrawal",
-        date: new Date(),
-        description: "Errands",
-      },
-      {
-        user_id: users[0].id,
-        account_id: accounts[0].id,
-        category_id: categories[0].id,
-        amount: 4000,
-        type: "Deposit",
-        date: new Date(),
-        description: "Paycheck",
-      },
-    ]);
+
+
+    //transaction
+    const transactionData = Array.from({ length: 40}, () => {
+      const randomAccount = faker.helpers.arrayElement(accounts)
+      const userCategories = categories.filter((cat) => cat.user_id === randomAccount.user_id, )
+      const randomCategory = faker.helpers.arrayElement(userCategories)
+      const isDeposit = randomCategory.type === "Income"
+
+      return {
+        user_id: randomAccount.user_id,
+        account_id: randomAccount.id,
+        category_id: randomCategory.id,
+        amount: faker.finance.amount({ min: 5, max: 800, dec: 2}),
+        type: isDeposit ? "Deposit" : "Withdrawal", 
+        date: faker.date.recent({ days: 90 }),
+        description: faker.finance.transactionDescription(),
+      }
+    })
+    await Transaction.bulkCreate(transactionData)
+    console.log("Transactions created")
   } catch (err) {
-    console.error("❌ Seed failed:", err.message);
+    console.error("Seed failed:", err.message);
   } finally {
     await db.close(); // close the connection so the script can exit
-    console.log("🌱 Done. Connection closed.");
+    console.log("Done. Connection closed.");
   }
 };
 
