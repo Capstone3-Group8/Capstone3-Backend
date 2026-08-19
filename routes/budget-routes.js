@@ -13,7 +13,7 @@ router.get("/summary", requireAuth, async (req, res, next) => {
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     const categories = await Category.findAll({
-      where: { user_id: req.user.id, type: "expense" },
+      where: { user_id: req.user.id, type: "Expense" },
       order: [["id", "ASC"]],
     });
 

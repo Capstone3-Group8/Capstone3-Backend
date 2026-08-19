@@ -15,6 +15,7 @@ router.get("/:months", requireAuth, async (req, res, next) => {
       return res.status(400).json({ error: "Invalid months value" });
     }
 
+    console.log(req.user)
     const now = new Date();
     const startDate = new Date(
       now.getFullYear(),
@@ -26,10 +27,12 @@ router.get("/:months", requireAuth, async (req, res, next) => {
     const categories = await Category.findAll({
       where: {
         user_id: req.user.id,
-        type: "expense",
+        type: "Expense",
       },
       order: [["id", "ASC"]],
     });
+
+    console.log(categories)
 
     // Get all withdrawal transactions within the date range
     const transactions = await Transaction.findAll({
@@ -39,6 +42,8 @@ router.get("/:months", requireAuth, async (req, res, next) => {
         date: { [Op.gte]: startDate },
       },
     });
+
+    console.log(transactions)
 
     // Build analysis results
     const analysis = categories.map((cat) => {
