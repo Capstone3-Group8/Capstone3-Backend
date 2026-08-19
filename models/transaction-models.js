@@ -25,7 +25,7 @@ const Transaction = db.define("Transaction", {
     allowNull: false,
   },
   type: {
-    type: DataTypes.ENUM("deposit", "dithdrawal"),
+    type: DataTypes.ENUM("deposit", "withdrawal"),
     allowNull: false,
   },
   date: {
