@@ -10,6 +10,56 @@ function getGeminiClient() {
   });
 }
 
+async function categorizeTransactions(transactions, categories) {
+  if (transactions.length === 0 || categories.length === 0) {
+    return [];
+  }
+
+  const ai = getGeminiClient();
+  const response = await ai.models.generateContent({
+    model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+    contents: `
+You categorize personal-finance transactions.
+
+Rules:
+- Return exactly one result for each transaction, in the same order.
+- Choose only a category name from the supplied allowed categories.
+- Match Deposit transactions to Income categories and Withdrawal transactions to Expense categories.
+- Do not invent categories or rely on information not present in the transaction.
+- If no category is a reasonable match, return null.
+
+Allowed categories:
+${JSON.stringify(categories)}
+
+Transactions:
+${JSON.stringify(transactions)}
+    `,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            categoryName: {
+              type: Type.STRING,
+              nullable: true,
+            },
+          },
+          required: ["categoryName"],
+        },
+      },
+    },
+  });
+
+  const results = JSON.parse(response.text);
+  if (!Array.isArray(results) || results.length !== transactions.length) {
+    throw new Error("AI returned an invalid transaction categorization");
+  }
+
+  return results.map((result) => result.categoryName || null);
+}
+
 async function generateFinancialInsights(financialData) {
   const ai = getGeminiClient();
 
@@ -64,12 +114,7 @@ ${JSON.stringify(financialData)}
           },
         },
 
-        required: [
-          "summary",
-          "trends",
-          "suggestions",
-          "warning",
-        ],
+        required: ["summary", "trends", "suggestions", "warning"],
       },
     },
   });
@@ -123,6 +168,7 @@ ${JSON.stringify(financialData)}
 }
 
 module.exports = {
+  categorizeTransactions,
   generateFinancialInsights,
   answerFinancialQuestion,
 };
