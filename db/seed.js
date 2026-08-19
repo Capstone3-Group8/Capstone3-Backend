@@ -1,6 +1,7 @@
 // db/seed.js — reset the tables and fill them with sample data.  Run: npm run seed
 // Gives you (and your teammates) the same predictable rows to build against.
 require("dotenv").config();
+const bcrypt = require("bcrypt")
 const { faker } = require("@faker-js/faker");
 const { db, User, Account, Transaction, Category } = require("../models");
 
@@ -10,11 +11,14 @@ const seed = async () => {
     await db.sync({ force: true });
     console.log("Database reset.");
 
+    const seedPassword = await bcrypt.hash("password123", 12)
+
 
     const userData = Array.from({ length: 4 }, () => ({
-      auth0Id: `auth0|seed-${faker.string.uuid()}`,
+      // auth0Id: `auth0|seed-${faker.string.uuid()}`,
       username: faker.internet.username().slice(0,20), //model cap at 20 char
       email: faker.internet.email(),
+      passwordHash: seedPassword,
     }))
     
     const users = await User.bulkCreate( userData, { returning: true});
