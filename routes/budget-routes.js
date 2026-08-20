@@ -27,7 +27,9 @@ router.get("/summary", requireAuth, async (req, res, next) => {
 
     const summary = categories.map((cat) => {
       const spent = transactions
-        .filter((tx) => tx.category_id === cat.id)
+        .filter(
+          (tx) => Number(tx.category_id) === Number(cat.id)
+        )
         .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
       const budget = Number(cat.budget || 0);
