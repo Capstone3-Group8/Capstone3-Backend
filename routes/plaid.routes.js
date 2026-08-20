@@ -13,7 +13,7 @@ router.post("/create-link-token", requireAuth, async (req, res, next) => {
       },
       client_name: "Capstone3",
       products: process.env.PLAID_PRODUCTS.split(","),
-      country_codes: process.env.PLAID_COUNTRY_CODES.split("s,"),
+      country_codes: process.env.PLAID_COUNTRY_CODES.split(","),
       language: "en",
     });
     res.json({ link_token: response.data.link_token });
@@ -109,6 +109,28 @@ router.post("/sync-transactions", requireAuth, async (req, res, next) => {
     );
 
     res.json({ success: true, count: transactions.length });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/accounts", requireAuth, async (req, res, next) => {
+  try {
+    const accounts = await PlaidAccount.findAll({
+      where: { user_id: req.user.id },
+    });
+    res.json(accounts);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/transactions", requireAuth, async (req, res, next) => {
+  try {
+    const transactions = await PlaidTransaction.findAll({
+      where: { user_id: req.user.id },
+    });
+    res.json(transactions);
   } catch (error) {
     next(error);
   }
