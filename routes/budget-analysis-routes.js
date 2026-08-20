@@ -48,7 +48,9 @@ router.get("/:months", requireAuth, async (req, res, next) => {
     // Build analysis results
     const analysis = categories.map((cat) => {
       const spent = transactions
-        .filter((tx) => tx.category_id === cat.id)
+        .filter(
+          (tx) => Number(tx.category_id) === Number(cat.id)
+        )
         .reduce((sum, tx) => sum + Number(tx.amount), 0);
 
       const monthlyBudget = Number(cat.budget || 0);
