@@ -132,7 +132,16 @@ router.post("/categorize", async (req, res, next) => {
       type: String(tx.type || "withdrawal").toLowerCase(),
     }));
 
-    const safeCategories = categories.map((cat) => String(cat).slice(0, 50));
+    const safeCategories = categories.map((cat) => {
+      if (typeof cat === "string") {
+        return { name: cat.slice(0, 50), type: "" };
+      }
+
+      return {
+        name: String(cat.name || "Uncategorized").slice(0, 50),
+        type: String(cat.type || "").slice(0, 20),
+      };
+    });
 
     const categoryNames = await categorizeTransactions(
       safeTransactions,

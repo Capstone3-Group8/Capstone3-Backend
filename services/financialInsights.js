@@ -23,12 +23,12 @@ You categorize personal-finance transactions.
 
 Rules:
 - Return exactly one result for each transaction, in the same order.
-- Choose only a category name from the supplied allowed categories.
+- Choose only a category name from the supplied allowed category objects.
 - Match Deposit transactions to Income categories and Withdrawal transactions to Expense categories.
 - Do not invent categories or rely on information not present in the transaction.
 - If no category is a reasonable match, return null.
 
-Allowed categories:
+Allowed categories, including their transaction types:
 ${JSON.stringify(categories)}
 
 Transactions:
