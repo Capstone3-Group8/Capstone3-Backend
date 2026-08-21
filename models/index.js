@@ -31,6 +31,9 @@ PlaidItem.belongsTo(User, { foreignKey: "user_id" });
 Category.hasMany(Transaction, { foreignKey: "category_id" });
 Transaction.belongsTo(Category, { foreignKey: "category_id" });
 
+Category.hasMany(PlaidTransaction, { foreignKey: "category_id" });
+PlaidTransaction.belongsTo(Category, { foreignKey: "category_id" });
+
 // Account and Transaction Relationship
 Account.hasMany(Transaction, { foreignKey: "account_id" });
 Transaction.belongsTo(Account, { foreignKey: "account_id" });

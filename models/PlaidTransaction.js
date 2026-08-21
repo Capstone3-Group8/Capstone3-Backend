@@ -15,9 +15,14 @@ const PlaidTransaction = db.define("PlaidTransaction", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  category_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // null until Gemini categrizes it(or if it can't be matched)
+  },
   transaction_id: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   amount: {
     type: DataTypes.DECIMAL(10, 2),
