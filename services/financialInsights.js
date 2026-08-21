@@ -60,6 +60,49 @@ ${JSON.stringify(transactions)}
   return results.map((result) => result.categoryName || null);
 }
 
+async function suggestCategoryForTransaction(transaction, existingCategories) {
+  const ai = getGeminiClient();
+  const response = await ai.models.generateContent({
+    model: process.env.GEMINI_MODEL || "gemini-3.5-flash-lite",
+    contents: `
+You pick the single best budget category for one personal-finance transaction.
+
+Rules:
+- If an existing category is a good semantic match, return its exact name unchanged.
+- Otherwise invent one new, concise, common-sense category name (e.g. "Groceries", "Rent", "Salary").
+- The type must be exactly "Income" if the transaction type is deposit, or "Expense" if it is withdrawal.
+- Return exactly one name and type.
+
+Existing categories:
+${JSON.stringify(existingCategories)}
+
+Transaction:
+${JSON.stringify(transaction)}
+    `,
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          name: { type: Type.STRING },
+          type: { type: Type.STRING },
+        },
+        required: ["name", "type"],
+      },
+    },
+  });
+
+  const result = JSON.parse(response.text);
+  if (
+    !result?.name ||
+    (result.type !== "Income" && result.type !== "Expense")
+  ) {
+    throw new Error("AI returned an invalid category suggestion");
+  }
+
+  return result;
+}
+
 async function generateFinancialInsights(financialData) {
   const ai = getGeminiClient();
 
@@ -169,6 +212,7 @@ ${JSON.stringify(financialData)}
 
 module.exports = {
   categorizeTransactions,
+  suggestCategoryForTransaction,
   generateFinancialInsights,
   answerFinancialQuestion,
 };

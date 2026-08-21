@@ -4,6 +4,7 @@ const {
   generateFinancialInsights,
   answerFinancialQuestion,
   categorizeTransactions,
+  suggestCategoryForTransaction,
 } = require("../services/financialInsights");
 const { error } = require("ajv/dist/vocabularies/applicator/dependencies");
 
@@ -154,6 +155,38 @@ router.post("/categorize", async (req, res, next) => {
     }));
 
     return res.status(200).json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/suggest-category", async (req, res, next) => {
+  try {
+    const { transaction, existingCategories } = req.body;
+
+    if (!transaction || typeof transaction !== "object") {
+      return res.status(400).json({ error: "A transaction is required!" });
+    }
+
+    const safeTransaction = {
+      description: String(transaction.description || "Unknown").slice(0, 150),
+      amount: Number(transaction.amount) || 0,
+      type: String(transaction.type || "withdrawal").toLowerCase(),
+    };
+
+    const safeExistingCategories = Array.isArray(existingCategories)
+      ? existingCategories.map((cat) => ({
+          name: String(cat.name || "").slice(0, 50),
+          type: String(cat.type || "").slice(0, 20),
+        }))
+      : [];
+
+    const suggestion = await suggestCategoryForTransaction(
+      safeTransaction,
+      safeExistingCategories,
+    );
+
+    return res.status(200).json({ success: true, data: suggestion });
   } catch (error) {
     next(error);
   }
